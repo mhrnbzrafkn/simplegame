@@ -13,12 +13,12 @@ class Enemy {
     this.screenHeight = screenHeight;
   }
 
-  void Draw() {
+  void drawEnemy() {
     fill(255, 0, 0);
     ellipse(positionX, positionY, diameter, diameter);
   }
 
-  void updatePosition(Player player, Wall[] walls, Enemy[] enemies) {
+  void updatePosition(Player player) {
     int dx = player.positionX - positionX;
     int dy = player.positionY - positionY;
 
@@ -59,5 +59,55 @@ class Enemy {
       
       positionX = newX;
       positionY = newY;
+  }
+}
+
+Enemy[] initial(int numEnemies, int enemyDiameter) {
+  Enemy[] enemies = new Enemy[numEnemies];
+  
+  for (int i = 0; i < numEnemies; i++) {
+    int randomX = 0;
+    int randomY = 0;
+    boolean positionOccupied = false;
+    
+    do {
+      randomX = int(int(random(width / enemyDiameter) + 1) * enemyDiameter) - (int(enemyDiameter / 2));
+      randomY = int(int(random(height / enemyDiameter) + 1) * enemyDiameter) - (int(enemyDiameter / 2));
+      
+      for (int j = 0; j < walls.length; j++) {
+        if (walls[j].positionX == randomX && walls[j].positionY == randomY) {
+          positionOccupied = true;
+          break;
+        }
+      }
+    } while (positionOccupied);
+    
+    enemies[i] = new Enemy(randomX, randomY, enemyDiameter, width, height);
+  }
+  
+  return enemies;
+}
+
+void drawEnemies(Enemy[] enemies) {
+  for (int i = 0; i < enemies.length; i++) {
+    enemies[i].drawEnemy();
+  }
+}
+
+void updateEnemiesPosition() {
+  if (!gameOver) {
+    for (int i = 0; i < numEnemies; i++) {
+      enemies[i].updatePosition(player);
+      
+      if (dist(enemies[i].positionX, enemies[i].positionY, player.positionX, player.positionY) < (enemies[i].diameter + player.diameter) / 2) {
+        player.points -= 10;
+        
+        if (player.points <= 0) {
+          gameOver = true;
+        }
+        
+        break;
+      }
+    }
   }
 }
